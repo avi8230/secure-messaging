@@ -1,0 +1,42 @@
+# Node modules
+node_modules/
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# dotenv environment variables file
+.env
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDEs
+.vscode/
+.idea/
+
+# Dependency directories
+jspm_packages/
+
+# Build directories
+dist/
+build/
+
+# Coverage reports
+coverage/
+
+# Optional npm cache directory
+.npm/
+
+# PM2 logs
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Others
+*.tgz
