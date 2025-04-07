@@ -10,7 +10,16 @@ exports.register = async (req, res) => {
             return res.status(400).json({ error: 'User already exists' });
 
         const hashedPassword = await bcrypt.hash(password, 10);
-        await User.create({ email, password: hashedPassword });
+        const user = await User.create({ email, password: hashedPassword });
+
+        const token = jwt.sign({ _id: user._id, email }, process.env.JWT_SECRET, { expiresIn: '1h' });
+        res.cookie('token', token, {
+            httpOnly: true,
+            secure: false, // TODO: Change to true if using HTTPS
+            sameSite: 'Lax',
+            maxAge: 60 * 60 * 1000 // 1 Hour
+        });
+
         logger.info(`User registered: ${email}`);
         res.json({ success: true });
     } catch (err) {
@@ -30,9 +39,9 @@ exports.login = async (req, res) => {
         logger.info(`User logged in: ${email}`);
         res.cookie('token', token, {
             httpOnly: true,
-            secure: false, // שנה ל-true אם אתה משתמש ב-HTTPS
+            secure: false, // TODO: Change to true if using HTTPS
             sameSite: 'Lax',
-            maxAge: 60 * 60 * 1000 // 1 שעה
+            maxAge: 60 * 60 * 1000 // 1 Hour
         });
         res.json({ success: true });
     } catch (err) {
