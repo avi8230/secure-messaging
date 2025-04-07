@@ -32,8 +32,8 @@ export default function Chat({ onLogout }) {
                 {messages.map((msg, index) => (
                     <ListItem key={index}>
                         <ListItemText
-                            // primary={msg.decrypted}
-                            primary={msg.encrypted}
+                            primary={msg.decrypted}
+                            // primary={msg.encrypted}
                             secondary={msg.email}
                         />
                     </ListItem>

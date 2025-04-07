@@ -19,8 +19,8 @@ exports.getMessages = async (req, res) => {
         const messages = await Message.find().populate('user', 'email');
 
         const result = messages.map(m => ({
-            encrypted: m.encrypted,
-            // decrypted: decrypt(m.encrypted),
+            // encrypted: m.encrypted,
+            decrypted: decrypt(m.encrypted),
             email: m.user.email
         }));
 
