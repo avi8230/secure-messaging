@@ -40,3 +40,12 @@ exports.login = async (req, res) => {
         res.status(500).json({ error: 'Login failed' });
     }
 };
+
+exports.logout = (req, res) => {
+    res.clearCookie('token', {
+        httpOnly: true,
+        secure: false, // אם אתה בפרודקשן עם HTTPS שים true
+        sameSite: 'Lax'
+    });
+    res.json({ success: true, message: 'Logged out successfully' });
+};
