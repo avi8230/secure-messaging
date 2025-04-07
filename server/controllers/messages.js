@@ -16,9 +16,15 @@ exports.saveMessage = async (req, res) => {
 
 exports.getMessages = async (req, res) => {
     try {
-        const messages = await Message.find({ user: req.user._id });
-        const decrypted = messages.map(m => ({ message: decrypt(m.encrypted) }));
-        res.json(decrypted);
+        const messages = await Message.find().populate('user', 'email');
+
+        const result = messages.map(m => ({
+            encrypted: m.encrypted,
+            // decrypted: decrypt(m.encrypted),
+            email: m.user.email
+        }));
+
+        res.json(result);
     } catch (err) {
         logger.error('Retrieving messages failed:', err);
         res.status(500).json({ error: 'Failed to retrieve messages' });
