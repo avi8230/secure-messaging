@@ -53,6 +53,9 @@ This app is designed to provide secure messaging between users using **Hybrid En
 
 > ✅ This design allows secure handling of large UTF-8 messages (e.g., in Hebrew), overcoming RSA size limitations.
 
+## 🔁 Communication Method
+
+This app uses **Polling** (periodic API requests) instead of **WebSockets** to fetch new messages from the server. This approach simplifies deployment and avoids persistent connections while still enabling real-time-like updates.
 
 ---
 
@@ -123,6 +126,28 @@ The script performs the following:
 
 ---
 
+## 🧪 Run Tests
+
+To run tests with environment configuration:
+
+```bash
+cd server
+npm run test:env
+```
+
+---
+
+## 🔑 Generate Server Keys
+
+To generate the RSA public/private key pair for the **server**, run:
+
+```bash
+cd server/scripts
+node generateServerKeys.js
+```
+
+---
+
 ## 🚀 Running the App
 
 ### Server:
@@ -138,3 +163,29 @@ npm start
 ---
 
 Good luck!
+---
+
+## 📦 Libraries Used
+
+### 📁 Server
+
+- **bcrypt** – Hashing passwords securely.
+- **cookie-parser** – Parsing cookies in incoming requests.
+- **cors** – Enabling Cross-Origin Resource Sharing.
+- **crypto** – Built-in Node.js library for cryptographic operations.
+- **dotenv** – Loads environment variables from a `.env` file.
+- **express** – Web framework for building the API server.
+- **jsonwebtoken** – For issuing and verifying JWT tokens (authentication).
+- **mongoose** – MongoDB object modeling tool for Node.js.
+- **winston** – Versatile logging library.
+
+### 💻 Client
+
+- **@emotion/react, @emotion/styled** – Styling utilities for writing CSS-in-JS.
+- **@mui/material** – Material UI components for React.
+- **@testing-library/*** – Suite of libraries for testing React components.
+- **axios** – HTTP client for making API requests.
+- **node-forge** – Implements RSA, AES, and other cryptographic tools on the frontend.
+- **react, react-dom** – Core libraries for building React applications.
+- **react-scripts** – Scripts and configuration for Create React App.
+- **web-vitals** – Measuring performance metrics of the web app.
