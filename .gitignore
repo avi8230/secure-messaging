@@ -40,3 +40,6 @@ pids
 
 # Others
 *.tgz
+
+# SSL certificates
+cert/

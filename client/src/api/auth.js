@@ -2,7 +2,7 @@ import axios from 'axios';
 
 axios.defaults.withCredentials = true;
 
-const API = 'http://localhost:3001/api/auth';
+const API = 'https://localhost:3001/api/auth';
 
 export const register = (data) => axios.post(`${API}/register`, data);
 export const login = (data) => axios.post(`${API}/login`, data);
