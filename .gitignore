@@ -43,3 +43,6 @@ pids
 
 # SSL certificates
 cert/
+
+# public key and private key
+keys/

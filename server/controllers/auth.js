@@ -3,6 +3,10 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const logger = require('../services/logger');
 
+const fs = require('fs');
+const path = require('path');
+const serverPublicKey = fs.readFileSync(path.join(__dirname, '../keys/server_public.pem'), 'utf8');
+
 exports.register = async (req, res) => {
     const { email, password } = req.body;
     try {
@@ -21,7 +25,7 @@ exports.register = async (req, res) => {
         });
 
         logger.info(`User registered: ${email}`);
-        res.json({ success: true });
+        res.json({ success: true, serverPublicKey });
     } catch (err) {
         logger.error('Registration failed:', err);
         res.status(500).json({ error: 'Registration failed' });
@@ -43,7 +47,7 @@ exports.login = async (req, res) => {
             sameSite: 'Lax',
             maxAge: 60 * 60 * 1000 // 1 Hour
         });
-        res.json({ success: true });
+        res.json({ success: true, serverPublicKey });
     } catch (err) {
         logger.error('Login failed:', err);
         res.status(500).json({ error: 'Login failed' });
@@ -53,8 +57,18 @@ exports.login = async (req, res) => {
 exports.logout = (req, res) => {
     res.clearCookie('token', {
         httpOnly: true,
-        secure: false, // אם אתה בפרודקשן עם HTTPS שים true
+        secure: false, // TODO: Change to true if using HTTPS
         sameSite: 'Lax'
     });
     res.json({ success: true, message: 'Logged out successfully' });
+};
+
+exports.updateUserPublicKey = async (req, res) => {
+    try {
+        await User.findByIdAndUpdate(req.user._id, { publicKey: req.body.publicKey });
+        res.json({ success: true });
+    } catch (err) {
+        logger.error('Updating public key failed:', err);
+        res.status(500).json({ error: 'Failed to update public key' });
+    }
 };

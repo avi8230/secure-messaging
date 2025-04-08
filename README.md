@@ -1,6 +1,58 @@
 # Secure Messaging App
 
-A secure chat system built with Node.js, React, and MongoDB.
+A secure, end-to-end encrypted chat system built with **Node.js**, **React**, and **MongoDB**.
+
+---
+
+## 🔐 System Overview & Design
+
+This app is designed to provide secure messaging between users using **Hybrid Encryption**, combining the strength of **RSA** (asymmetric encryption) with **AES** (symmetric encryption).
+
+### 🔒 Encryption Strategy
+
+- **Hybrid Encryption (RSA + AES)** is used for all communication between client and server.
+- The goal is to support:
+  - Secure transmission over HTTPS
+  - Full encryption **even before transport**
+  - Compatibility with non-ASCII text (e.g., Hebrew)
+  - Preventing man-in-the-middle attacks even in development/testing
+
+#### 🔧 How it works
+
+1. **Key Generation**:
+   - The **server** generates an RSA key pair (2048-bit) once and loads it from disk.
+   - Each **client** generates its own RSA key pair **during login**, storing the private key in `localStorage` and sending the public key to the server.
+
+2. **Secure Requests (Client → Server)**:
+   - The client:
+     - Generates a random **AES-256 key** and IV.
+     - Encrypts the payload (e.g., message) using `AES-256-CBC`.
+     - Encrypts the AES key using the **server’s RSA public key**.
+     - Sends:
+       ```json
+       {
+         "encryptedKey": "<RSA-encrypted AES key>",
+         "encryptedData": {
+           "iv": "<AES IV>",
+           "data": "<AES-encrypted payload>"
+         }
+       }
+       ```
+   - The server:
+     - Decrypts the AES key using its **RSA private key**.
+     - Decrypts the message with AES.
+
+3. **Secure Responses (Server → Client)**:
+   - The server:
+     - Prepares a JSON payload (e.g., messages, status).
+     - Encrypts it using AES-256 with a fresh key/IV.
+     - Encrypts the AES key using the **client’s RSA public key** (stored in the DB).
+   - The client:
+     - Decrypts the AES key with its **RSA private key**.
+     - Decrypts the response with AES.
+
+> ✅ This design allows secure handling of large UTF-8 messages (e.g., in Hebrew), overcoming RSA size limitations.
+
 
 ---
 
