@@ -1,67 +1,73 @@
-# Secure Messaging App
+# 🔐 Secure Messaging App
 
 A secure, end-to-end encrypted chat system built with **Node.js**, **React**, and **MongoDB**.
 
 ---
 
-## 🔐 System Overview & Design
+## 🧠 Overview
 
-This app is designed to provide secure messaging between users using **Hybrid Encryption**, combining the strength of **RSA** (asymmetric encryption) with **AES** (symmetric encryption).
-
-### 🔒 Encryption Strategy
-
-- **Hybrid Encryption (RSA + AES)** is used for all communication between client and server.
-- The goal is to support:
-  - Secure transmission over HTTPS
-  - Full encryption **even before transport**
-  - Compatibility with non-ASCII text (e.g., Hebrew)
-  - Preventing man-in-the-middle attacks even in development/testing
-
-#### 🔧 How it works
-
-1. **Key Generation**:
-   - The **server** generates an RSA key pair (2048-bit) once and loads it from disk.
-   - Each **client** generates its own RSA key pair **during login**, storing the private key in `localStorage` and sending the public key to the server.
-
-2. **Secure Requests (Client → Server)**:
-   - The client:
-     - Generates a random **AES-256 key** and IV.
-     - Encrypts the payload (e.g., message) using `AES-256-CBC`.
-     - Encrypts the AES key using the **server’s RSA public key**.
-     - Sends:
-       ```json
-       {
-         "encryptedKey": "<RSA-encrypted AES key>",
-         "encryptedData": {
-           "iv": "<AES IV>",
-           "data": "<AES-encrypted payload>"
-         }
-       }
-       ```
-   - The server:
-     - Decrypts the AES key using its **RSA private key**.
-     - Decrypts the message with AES.
-
-3. **Secure Responses (Server → Client)**:
-   - The server:
-     - Prepares a JSON payload (e.g., messages, status).
-     - Encrypts it using AES-256 with a fresh key/IV.
-     - Encrypts the AES key using the **client’s RSA public key** (stored in the DB).
-   - The client:
-     - Decrypts the AES key with its **RSA private key**.
-     - Decrypts the response with AES.
-
-> ✅ This design allows secure handling of large UTF-8 messages (e.g., in Hebrew), overcoming RSA size limitations.
-
-## 🔁 Communication Method
-
-This app uses **Polling** (periodic API requests) instead of **WebSockets** to fetch new messages from the server. This approach simplifies deployment and avoids persistent connections while still enabling real-time-like updates.
+This project provides a robust and secure messaging platform based on **Hybrid Encryption**, combining the strengths of **RSA (asymmetric)** and **AES (symmetric)** cryptography. Messages are encrypted both in transit and before transmission, ensuring true end-to-end encryption.
 
 ---
 
-## ⚙️ `.env` Configuration
+## 🔒 Encryption Strategy
 
-### Server (`server/.env`):
+### Hybrid Encryption (RSA + AES)
+
+- All communication between the client and server is encrypted using a hybrid approach.
+- Messages are encrypted *before* being sent over HTTPS to prevent man-in-the-middle attacks—even during development.
+- Full support for **UTF-8**, including non-ASCII characters (e.g., Hebrew).
+
+### 🔧 How It Works
+
+#### 1. Key Generation
+- **Server**:
+  - Generates a 2048-bit RSA key pair once and loads it from disk.
+- **Client**:
+  - Generates its own RSA key pair upon login.
+  - Saves the **private key** in `localStorage`.
+  - Sends the **public key** to the server.
+
+#### 2. Sending Encrypted Requests (Client ➝ Server)
+- Client:
+  - Generates an AES-256 key and IV.
+  - Encrypts the message payload using `AES-256-CBC`.
+  - Encrypts the AES key with the server's **RSA public key**.
+  - Sends:
+    ```json
+    {
+      "encryptedKey": "<RSA-encrypted AES key>",
+      "encryptedData": {
+        "iv": "<AES IV>",
+        "data": "<AES-encrypted payload>"
+      }
+    }
+    ```
+- Server:
+  - Decrypts the AES key using its RSA **private key**.
+  - Decrypts the message using AES.
+
+#### 3. Returning Encrypted Responses (Server ➝ Client)
+- Server:
+  - Encrypts response payload using AES-256.
+  - Encrypts AES key using client’s **RSA public key** (stored in DB).
+- Client:
+  - Decrypts AES key with its **private RSA key**.
+  - Decrypts response data using AES.
+
+> ✅ This approach supports large, UTF-8 messages (like Hebrew text) without exceeding RSA limits.
+
+---
+
+## 🔁 Communication Method
+
+The system uses **Polling** instead of WebSockets to fetch messages periodically. This simplifies deployment and avoids persistent connections while maintaining near real-time updates.
+
+---
+
+## ⚙️ Environment Configuration
+
+### Server (`server/.env`)
 ```
 PORT=3001
 MONGO_URI=mongodb://localhost:27017/secure-messaging
@@ -70,9 +76,9 @@ ENCRYPTION_KEY=your32charlongsecureencryptionkey!
 ENCRYPTION_IV=1234567890abcdef
 ```
 
-> 🧠 Note: `ENCRYPTION_KEY` must be exactly 32 characters, `ENCRYPTION_IV` must be 16 characters.
+> 🧠 `ENCRYPTION_KEY` must be exactly 32 characters, and `ENCRYPTION_IV` must be 16 characters.
 
-### Client (`client/.env`):
+### Client (`client/.env`)
 ```
 HTTPS=true
 PORT=3000
@@ -80,66 +86,19 @@ PORT=3000
 
 ---
 
-## 🛠 Installation
+## 📦 Installation
 
-In both the `server` and `client` directories:
+In both `server/` and `client/` directories, run:
 
 ```bash
-npm i
+npm install
 ```
 
 ---
 
-## 🔐 Generating SSL Certificate
+## 🔑 Generate Server RSA Keys
 
-1. Navigate to the `server/` directory.
-2. Right-click the `generate-cert.ps1` file.
-3. Select **"Run with PowerShell"**.
-4. The following files will be created:
-   - `cert/cert.pem`
-   - `cert/key.pem`
-5. The server will start automatically with HTTPS at `https://localhost:3001`.
-
-### 🧪 Certificate Confirmation in Browser (first run):
-
-- Go to: `https://localhost:3001` → Accept the certificate.
-- Then go to: `https://localhost:3000` → Accept the certificate.
-
----
-
-## 🧪 Load Sample Users and Messages into MongoDB
-
-Run the following script from the `server/` directory:
-
-```bash
-cd server/scripts
-node loadSampleData.js
-```
-
-The script performs the following:
-
-- Connects to the database (`MONGO_URI`)
-- Creates 2 sample users:
-  - `user1@example.com` / `password123`
-  - `user2@example.com` / `password123`
-- Inserts encrypted messages from both users
-
----
-
-## 🧪 Run Tests
-
-To run tests with environment configuration:
-
-```bash
-cd server
-npm run test:env
-```
-
----
-
-## 🔑 Generate Server Keys
-
-To generate the RSA public/private key pair for the **server**, run:
+To generate the RSA public/private key pair for the **server**:
 
 ```bash
 cd server/scripts
@@ -148,44 +107,99 @@ node generateServerKeys.js
 
 ---
 
+## 🔐 Generate SSL Certificate
+
+1. Navigate to the `server/` directory.
+2. Right-click `generate-cert.ps1`.
+3. Select **"Run with PowerShell"**.
+4. Generated files:
+   - `cert/cert.pem`
+   - `cert/key.pem`
+5. The server will start with HTTPS at:  
+   `https://localhost:3001`
+
+### 🧪 Browser Certificate Approval (First Time)
+
+- Open `https://localhost:3001` in your browser and accept the certificate.
+- Then open `https://localhost:3000` and accept it again.
+
+---
+
+## 📥 Load Sample Data (Users & Messages)
+
+To preload the database with test users and messages:
+
+```bash
+cd server/scripts
+node loadSampleData.js
+```
+
+This will:
+
+- Connect to `MONGO_URI`.
+- Create two users:
+  - `user1@example.com` / `password123`
+  - `user2@example.com` / `password123`
+- Insert encrypted sample messages.
+
+---
+
+## 🧪 Running Tests
+
+```bash
+cd server
+npm run test:env
+```
+
+---
+
 ## 🚀 Running the App
 
-### Server:
+### Server
 ```bash
+cd server
 node index.js
 ```
 
-### Client:
+### Client
 ```bash
+cd client
 npm start
 ```
 
 ---
 
-Good luck!
+## 📚 Libraries Used
+
+### 🖥 Server
+
+- `bcrypt` – Secure password hashing  
+- `cookie-parser` – Cookie handling  
+- `cors` – Cross-origin support  
+- `crypto` – Built-in Node.js cryptography  
+- `dotenv` – Environment variable management  
+- `express` – Web framework  
+- `jsonwebtoken` – JWT token handling  
+- `mongoose` – MongoDB ODM  
+- `winston` – Logging utility
+
+### 🌐 Client
+
+- `@emotion/react` / `@emotion/styled` – CSS-in-JS styling  
+- `@mui/material` – Material UI components  
+- `@testing-library/*` – Component testing  
+- `axios` – HTTP client  
+- `node-forge` – Frontend cryptography (RSA, AES)  
+- `react`, `react-dom` – Core React libraries  
+- `react-scripts` – Create React App configuration  
+- `web-vitals` – App performance metrics
+
 ---
 
-## 📦 Libraries Used
+## ✅ License
 
-### 📁 Server
+This project is open-source and licensed under the [MIT License](LICENSE).
 
-- **bcrypt** – Hashing passwords securely.
-- **cookie-parser** – Parsing cookies in incoming requests.
-- **cors** – Enabling Cross-Origin Resource Sharing.
-- **crypto** – Built-in Node.js library for cryptographic operations.
-- **dotenv** – Loads environment variables from a `.env` file.
-- **express** – Web framework for building the API server.
-- **jsonwebtoken** – For issuing and verifying JWT tokens (authentication).
-- **mongoose** – MongoDB object modeling tool for Node.js.
-- **winston** – Versatile logging library.
+---
 
-### 💻 Client
-
-- **@emotion/react, @emotion/styled** – Styling utilities for writing CSS-in-JS.
-- **@mui/material** – Material UI components for React.
-- **@testing-library/*** – Suite of libraries for testing React components.
-- **axios** – HTTP client for making API requests.
-- **node-forge** – Implements RSA, AES, and other cryptographic tools on the frontend.
-- **react, react-dom** – Core libraries for building React applications.
-- **react-scripts** – Scripts and configuration for Create React App.
-- **web-vitals** – Measuring performance metrics of the web app.
+Good luck and have fun! 🚀
