@@ -153,21 +153,107 @@ npm run test:env
 
 ---
 
+
 ## 🚀 Running the App
 
-### Server
+Follow these steps to run the full application:
+
+---
+
+### 1. 🔑 Generate Server RSA Keys (only once)
+
+```bash
+cd server/scripts
+node generateServerKeys.js
+```
+
+---
+
+### 2. 🔐 Generate SSL Certificate (only once)
+
+```bash
+cd server
+powershell ./generate-cert.ps1
+```
+
+> This will generate:
+> - `cert/cert.pem`
+> - `cert/key.pem`
+
+The server will be ready to run over HTTPS at:  
+`https://localhost:3001`
+
+---
+
+### 3. ⚙️ Configure Environment Variables
+
+Ensure `.env` files exist in both `server/` and `client/` directories.
+
+#### Example: `server/.env`
+```
+PORT=3001
+MONGO_URI=mongodb://localhost:27017/secure-messaging
+JWT_SECRET=your_jwt_secret_here
+ENCRYPTION_KEY=your32charlongsecureencryptionkey!
+ENCRYPTION_IV=1234567890abcdef
+```
+
+#### Example: `client/.env`
+```
+HTTPS=true
+PORT=3000
+```
+
+---
+
+### 4. 📦 Install Dependencies
+
+In both `server/` and `client/` directories, run:
+
+```bash
+npm install
+```
+
+---
+
+### 5. 🧪 Load Sample Users and Messages (optional)
+
+```bash
+cd server/scripts
+node loadSampleData.js
+```
+
+---
+
+### 6. 🚀 Start the App
+
+#### Start the Server:
+
 ```bash
 cd server
 node index.js
 ```
 
-### Client
+#### Start the Client:
+
+In another terminal:
+
 ```bash
 cd client
 npm start
 ```
 
 ---
+
+### 7. 🌐 Accept SSL Certificate in Browser
+
+First time only:
+
+1. Visit `https://localhost:3001` and accept the certificate.
+2. Then visit `https://localhost:3000` and accept it.
+
+You're now ready to use the Secure Messaging App! 🎉
+
 
 ## 📚 Libraries Used
 
