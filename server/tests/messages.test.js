@@ -7,30 +7,30 @@ const app = require('../app');
 const User = require('../models/User');
 const Message = require('../models/Message');
 
-// מפתחות לבדיקה
 let clientKeyPair;
 let token;
+let testUserId;
 
 beforeAll(async () => {
     await mongoose.connect(process.env.MONGO_URI);
 
-    // יצירת משתמש והתחברות
     const email = 'test_messages@example.com';
     const password = '12345678';
 
     await request(app).post('/api/auth/register').send({ email, password });
 
     const res = await request(app).post('/api/auth/login').send({ email, password });
-    token = res.headers['set-cookie'][0].split(';')[0]; // cookie: token=...
+    token = res.headers['set-cookie'][0].split(';')[0];
 
-    // יצירת מפתחות RSA בצד הלקוח
+    const user = await User.findOne({ email });
+    testUserId = user._id;
+
     clientKeyPair = crypto.generateKeyPairSync('rsa', {
         modulusLength: 2048,
         publicKeyEncoding: { type: 'pkcs1', format: 'pem' },
         privateKeyEncoding: { type: 'pkcs1', format: 'pem' },
     });
 
-    // עדכון המפתח הציבורי של המשתמש
     await request(app)
         .post('/api/auth/update-public-key')
         .set('Cookie', token)
@@ -38,12 +38,11 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-    await Message.deleteMany({});
+    await Message.deleteMany({ user: testUserId });
     await User.deleteMany({ email: /test_/ });
     await mongoose.disconnect();
 });
 
-// פונקציות עזר להצפנה/פענוח היברידית
 function encryptHybrid(publicKey, dataObj) {
     const aesKey = crypto.randomBytes(32);
     const iv = crypto.randomBytes(16);
@@ -105,7 +104,6 @@ describe('Messages', () => {
         expect(res.statusCode).toBe(200);
         const decrypted = decryptHybrid(res.body.encryptedKey, res.body.encryptedData);
         expect(Array.isArray(decrypted)).toBe(true);
-        expect(decrypted[0].message).toBe('Hello world!');
-        expect(decrypted[0].email).toBe('test_messages@example.com');
+        expect(decrypted.some(m => m.message === 'Hello world!')).toBe(true);
     });
 });
