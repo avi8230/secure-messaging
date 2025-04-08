@@ -109,7 +109,7 @@ node generateServerKeys.js
 
 ## 🔐 Generate SSL Certificate
 
-1. Navigate to the `server/` directory.
+1. Navigate to the `server/scripts` directory.
 2. Right-click `generate-cert.ps1`.
 3. Select **"Run with PowerShell"**.
 4. Generated files:
