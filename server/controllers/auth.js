@@ -19,7 +19,7 @@ exports.register = async (req, res) => {
         const token = jwt.sign({ _id: user._id, email }, process.env.JWT_SECRET, { expiresIn: '1h' });
         res.cookie('token', token, {
             httpOnly: true,
-            secure: false, // TODO: Change to true if using HTTPS
+            secure: false, // TODO: Change to true if using real HTTPS
             sameSite: 'Lax',
             maxAge: 60 * 60 * 1000 // 1 Hour
         });
@@ -43,7 +43,7 @@ exports.login = async (req, res) => {
         logger.info(`User logged in: ${email}`);
         res.cookie('token', token, {
             httpOnly: true,
-            secure: false, // TODO: Change to true if using HTTPS
+            secure: false, // TODO: Change to true if using real HTTPS
             sameSite: 'Lax',
             maxAge: 60 * 60 * 1000 // 1 Hour
         });
@@ -57,7 +57,7 @@ exports.login = async (req, res) => {
 exports.logout = (req, res) => {
     res.clearCookie('token', {
         httpOnly: true,
-        secure: false, // TODO: Change to true if using HTTPS
+        secure: false, // TODO: Change to true if using real HTTPS
         sameSite: 'Lax'
     });
     res.json({ success: true, message: 'Logged out successfully' });
