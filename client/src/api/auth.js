@@ -7,6 +7,8 @@ const API = 'https://localhost:3001/api/auth';
 export const register = (data) => axios.post(`${API}/register`, data);
 export const login = (data) => axios.post(`${API}/login`, data);
 export const logout = () => axios.post(`${API}/logout`);
-
 export const updatePublicKey = (publicKey) =>
     axios.post(`${API}/update-public-key`, { publicKey });
+
+// For checking authentication status
+export const getCurrentUser = () => axios.get(`${API}/me`);
