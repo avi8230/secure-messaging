@@ -1,9 +1,8 @@
 require('dotenv').config();
 const express = require('express');
-const mongoose = require('mongoose');
 const cookieParser = require('cookie-parser');
 const cors = require('cors');
-const logger = require('./services/logger');
+const connectToMongo = require('./services/mongo');
 
 const app = express();
 
@@ -14,9 +13,7 @@ app.use(cors({
     credentials: true
 }));
 
-mongoose.connect(process.env.MONGO_URI)
-    .then(() => logger.info('Connected to MongoDB'))
-    .catch((err) => logger.error('MongoDB connection error:', err));
+connectToMongo();
 
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/messages', require('./routes/messages'));

@@ -72,3 +72,7 @@ exports.updateUserPublicKey = async (req, res) => {
         res.status(500).json({ error: 'Failed to update public key' });
     }
 };
+
+exports.getCurrentUser = (req, res) => {
+    res.json({ authenticated: true, email: req.user.email });
+};
