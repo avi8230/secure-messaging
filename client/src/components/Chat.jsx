@@ -53,7 +53,7 @@ export default function Chat({ onLogout }) {
             <Typography variant="h4" gutterBottom>Chat Room</Typography>
 
             <List sx={{ maxHeight: 300, overflowY: 'auto', border: '1px solid #ccc', mb: 2 }}>
-                {messages.map((msg, index) => (
+                {[...messages].reverse().map((msg, index) => (
                     <ListItem key={index}>
                         <ListItemText
                             primary={msg.message}
