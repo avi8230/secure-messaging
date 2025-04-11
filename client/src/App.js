@@ -31,10 +31,16 @@ function App() {
                     <Typography variant="subtitle1" sx={{ mb: 2 }}>
                         Connected as: <strong>{email}</strong>
                     </Typography>
-                    <Chat onLogout={() => setIsAuthenticated(false)} />
+                    <Chat onLogout={() => {
+                        setIsAuthenticated(false);
+                        setEmail('');
+                    }} />
                 </Box>
             ) : (
-                <AuthForm onLogin={() => setIsAuthenticated(true)} />
+                <AuthForm onSuccessLogin={(email) => {
+                    setIsAuthenticated(true);
+                    setEmail(email);
+                }} />
             )}
         </Box>
     );

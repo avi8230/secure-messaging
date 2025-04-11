@@ -8,7 +8,7 @@ import {
     deletePrivateKey,
 } from '../utils/keys';
 
-export default function AuthForm({ onLogin }) {
+export default function AuthForm({ onSuccessLogin }) {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [isLogin, setIsLogin] = useState(true);
@@ -32,7 +32,7 @@ export default function AuthForm({ onLogin }) {
             await updatePublicKey(publicKey);
 
             // 4. Enable login continuation
-            onLogin();
+            onSuccessLogin(email);
         } catch (err) {
             console.error(err);
             setError(err.response?.data?.error || 'Something went wrong');
