@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { TextField, Button, Box, Typography } from '@mui/material';
 import { login, register, updatePublicKey } from '../api/auth';
-import { generateKeyPair } from '../utils/crypto';
+import { generateKeyPair } from '../utils/encryption';
 import {
     savePrivateKey,
     saveServerPublicKey,
