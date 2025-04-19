@@ -1,46 +1,8 @@
 import axios from 'axios';
 import { getPrivateKey, getServerPublicKey } from '../utils/keys';
-import forge from 'node-forge';
+import { encryptHybrid, decryptHybrid } from '../utils/encryption';
 
 const API = 'https://localhost:3001/api/messages';
-
-// Creating hybrid encryption
-function encryptHybrid(dataObj, serverPublicKeyPem) {
-    const aesKey = forge.random.getBytesSync(32); // 256-bit
-    const iv = forge.random.getBytesSync(16);
-
-    const cipher = forge.cipher.createCipher('AES-CBC', aesKey);
-    cipher.start({ iv });
-    cipher.update(forge.util.createBuffer(JSON.stringify(dataObj), 'utf8'));
-    cipher.finish();
-    const encryptedData = cipher.output.getBytes();
-
-    const encryptedKey = forge.pki.publicKeyFromPem(serverPublicKeyPem).encrypt(aesKey, 'RSAES-PKCS1-V1_5');
-
-    return {
-        encryptedKey: forge.util.encode64(encryptedKey),
-        encryptedData: {
-            iv: forge.util.encode64(iv),
-            data: forge.util.encode64(encryptedData),
-        },
-    };
-}
-
-// Decoding a hybrid response
-function decryptHybrid(privateKeyPem, { encryptedKey, encryptedData }) {
-    const privateKey = forge.pki.privateKeyFromPem(privateKeyPem);
-    const aesKey = privateKey.decrypt(forge.util.decode64(encryptedKey), 'RSAES-PKCS1-V1_5');
-
-    const decipher = forge.cipher.createDecipher('AES-CBC', aesKey);
-    decipher.start({
-        iv: forge.util.decode64(encryptedData.iv),
-    });
-    decipher.update(forge.util.createBuffer(forge.util.decode64(encryptedData.data)));
-    const success = decipher.finish();
-
-    if (!success) throw new Error('AES decryption failed');
-    return JSON.parse(decipher.output.toString('utf8'));
-}
 
 // Sending a message
 export const sendMessage = async (message) => {
