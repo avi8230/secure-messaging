@@ -42,7 +42,7 @@ pids
 *.tgz
 
 # SSL certificates
-cert/
+# cert/
 
 # public key and private key
-keys/
+# keys/
